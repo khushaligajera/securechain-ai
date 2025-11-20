@@ -1,0 +1,16 @@
+{
+  "name": "SecureChain AI",
+  "symbol": "SCAI",
+  "description": "SecureChain AI - Advanced blockchain security and AI-powered token",
+  "image": "https://gateway.pinata.cloud/ipfs/bafybeibxkanvk3ucz2endgugz6ay2574nprjxartnkmgnohv5p4m5zabnq",
+  "attributes": [
+    {
+      "trait_type": "Total Supply",
+      "value": "500,000,000"
+    },
+    {
+      "trait_type": "Decimals",
+      "value": 9
+    }
+  ]
+}

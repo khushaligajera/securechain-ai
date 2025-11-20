@@ -1,0 +1,12 @@
+{
+  "programId": "3MByoH5v5Mbu3VjL82JMiQQheuFqSEgZ9Ke2ZWvuiiM9",
+  "mintAddress": "GgUAvMSCdzdwnzA8HYChHyp9SAZSgYa67E8wLd18tG2v",
+  "authority": "Gm4qNCyWvDcBotBwAMUG5yWGPg7BCNBgXfrzVdnRYUSb",
+  "tokenDataPDA": "AeFJCUTYof6n3EHPgn5NzWxftS7XC6RJeJS4oY9y4pGG",
+  "name": "SecureChain AI",
+  "symbol": "SCAI",
+  "decimals": 9,
+  "network": "devnet",
+  "logoUri": "https://gateway.pinata.cloud/ipfs/bafybeibxkanvk3ucz2endgugz6ay2574nprjxartnkmgnohv5p4m5zabnq",
+  "metadataUri": "https://gateway.pinata.cloud/ipfs/bafkreiambwpfdpcig5yg3izlrbgf7rfmbwnesn5ipsjl5x72owjhghecqu"
+}
