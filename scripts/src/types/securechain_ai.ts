@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/securechain_ai.json`.
  */
 export type SecurechainAi = {
-  "address": "5Hm6eDkovqPoLwMwxf8nyveeJJDdhBkTmxEodLZU5RFF",
+  "address": "2kEoDg33aergmyXTevEUjwXUi9WZx1Fm62feMEjKoaLA",
   "metadata": {
     "name": "securechainAi",
     "version": "0.1.0",
@@ -114,6 +114,85 @@ export type SecurechainAi = {
         {
           "name": "amount",
           "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "createMetadata",
+      "docs": [
+        "Create Metaplex metadata for the token"
+      ],
+      "discriminator": [
+        30,
+        35,
+        117,
+        134,
+        196,
+        139,
+        44,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "tokenData",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "relations": [
+            "tokenData"
+          ]
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
         }
       ]
     },

@@ -1,18 +1,18 @@
 [toolchain]
-anchor_version = "0.30.1"
+anchor_version = "0.32.1"
 
 [features]
 resolution = true
 skip-lint = false
 
 [programs.devnet]
-securechain_ai = "G5dg4TncETCwqXB35XgiyjkP6qdV5SQMPBscbeWkNWQK"
+securechain_ai = "2kEoDg33aergmyXTevEUjwXUi9WZx1Fm62feMEjKoaLA"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

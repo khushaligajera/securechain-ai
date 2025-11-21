@@ -20,9 +20,12 @@ import { SecurechainAi } from './types/securechain_ai';
 import * as fs from "fs";
 import os from "os";
 import path from "path";
+import * as dotenv from "dotenv";
+
+
 
 // Program ID from your declare_id!
-const PROGRAM_ID = new PublicKey('3MByoH5v5Mbu3VjL82JMiQQheuFqSEgZ9Ke2ZWvuiiM9');
+const PROGRAM_ID = new PublicKey('2kEoDg33aergmyXTevEUjwXUi9WZx1Fm62feMEjKoaLA');
 
 // Token Data PDA seeds
 const TOKEN_DATA_SEED = Buffer.from('token_data');
@@ -37,6 +40,7 @@ export class SecureChainClient {
   private program: Program<SecurechainAi>;
   private connection: Connection;
   private provider: AnchorProvider;
+  
 
   constructor(
     connection: Connection,
@@ -106,7 +110,7 @@ async createMetadata(
       systemProgram: SystemProgram.programId,
       rent: SYSVAR_RENT_PUBKEY,  // ✅ Changed from sysvarInstructions to rent
       tokenMetadataProgram: METADATA_PROGRAM_ID,  // ✅ Good to add this too
-    } as any)
+    }as any)
     .rpc();
 
   console.log('✅ Metadata created successfully!');
@@ -488,9 +492,11 @@ async function requestAirdrop(connection: Connection, publicKey: PublicKey, amou
 }
 
 export async function exampleUsage() {
+  dotenv.config();
   // Setup
   const idlJson = require('../../target/idl/securechain_ai.json');
-  const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+  let rpcUrl=process.env.RPC_URL ?? "https://api.devnet.solana.com";
+  const connection = new Connection(rpcUrl, 'confirmed');
  const keypairPath = path.join(os.homedir(), ".config", "solana", "id.json");
 const secret = JSON.parse(fs.readFileSync(keypairPath, "utf-8"));
 const authorityKeypair = Keypair.fromSecretKey(Uint8Array.from(secret));
@@ -534,21 +540,21 @@ const authorityKeypair = Keypair.fromSecretKey(Uint8Array.from(secret));
     console.log("💎 Total Supply:", tokenData.totalSupply.toString());
     console.log("==========================================\n");
     
-    // Save to file
-    const info = {
-      programId: client['program'].programId.toString(),
-      mintAddress: tokenData.mint.toString(),
-      authority: tokenData.authority.toString(),
-      name: tokenData.name,
-      symbol: tokenData.symbol,
-      decimals: tokenData.decimals,
-      totalSupply: tokenData.totalSupply.toString(),
-      tokenDataPDA:tokenDataPDA.toString(),
-      network: "devnet"
-    };
+    // // Save to file
+    // const info = {
+    //   programId: client['program'].programId.toString(),
+    //   mintAddress: tokenData.mint.toString(),
+    //   authority: tokenData.authority.toString(),
+    //   name: tokenData.name,
+    //   symbol: tokenData.symbol,
+    //   decimals: tokenData.decimals,
+    //   totalSupply: tokenData.totalSupply.toString(),
+    //   tokenDataPDA:tokenDataPDA.toString(),
+    //   network: "devnet"
+    // };
     
-    fs.writeFileSync("token-info.json", JSON.stringify(info, null, 2));
-    console.log("💾 Token info saved to token-info.json\n");
+    // fs.writeFileSync("token-info.json", JSON.stringify(info, null, 2));
+    // console.log("💾 Token info saved to token-info.json\n");
     
   } catch (error) {
     console.log("ℹ️  Token doesn't exist yet. Initializing new token...\n");
@@ -593,7 +599,9 @@ if (fs.existsSync("mint.json")) {
   );
 
   const metadataAccount = await connection.getAccountInfo(metadataPDA);
-  
+  console.log("cwd =", process.cwd());
+console.log("reading =", path.resolve("token-info.json"));
+
   if (!metadataAccount) {
     console.log("ℹ️  Metadata doesn't exist. Creating...\n")
 

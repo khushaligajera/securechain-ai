@@ -1,6 +1,20 @@
 [workspace]
 members = [
-    "programs/securechain-ai"
+    "programs/*"
 ]
 resolver = "2"
 
+[workspace.dependencies]
+borsh = "0.10.3"
+solana-program = "~1.18.0"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1
+
+
+[profile.release.build-override]
+opt-level = 3
+incremental = false
+codegen-units = 1

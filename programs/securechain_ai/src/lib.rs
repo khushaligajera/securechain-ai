@@ -1,11 +1,15 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token::{self, Approve, Burn, Mint, MintTo, Token, TokenAccount, Transfer};
-use mpl_token_metadata::instructions::{CreateV1, CreateV1InstructionArgs};
-use mpl_token_metadata::types::TokenStandard;
+use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer, Approve, Burn};
+use mpl_token_metadata::{
+    instructions::{
+        CreateMetadataAccountV3,
+        CreateMetadataAccountV3InstructionArgs,
+    },
+    types::DataV2,
+};
 
-//FGMKteZ5U4JuCkiJCb3F2FTEANvy38qWakzLQ8j1FUu
-declare_id!("G5dg4TncETCwqXB35XgiyjkP6qdV5SQMPBscbeWkNWQK");
+declare_id!("2kEoDg33aergmyXTevEUjwXUi9WZx1Fm62feMEjKoaLA");
 
 #[program]
 pub mod securechain_ai {
@@ -74,9 +78,8 @@ pub mod securechain_ai {
     //     Ok(())
     // }
 
-
-/// Create Metaplex metadata for the token
-pub fn create_metadata(
+//     /// Create Metaplex metadata for the token
+    pub fn create_metadata(
     ctx: Context<CreateMetadata>,
     name: String,
     symbol: String,
@@ -87,58 +90,55 @@ pub fn create_metadata(
     let signer_seeds = &[&seeds[..]];
 
     msg!("Creating metadata...");
-    msg!("Name: {}", name);
-    msg!("Symbol: {}", symbol);
-    msg!("URI: {}", uri);
 
-    let create_args = CreateV1InstructionArgs {
+    let data_v2 = DataV2 {
         name,
         symbol,
         uri,
         seller_fee_basis_points: 0,
         creators: None,
-        primary_sale_happened: false,
-        is_mutable: true,
-        token_standard: TokenStandard::Fungible,
         collection: None,
         uses: None,
-        collection_details: None,
-        rule_set: None,
-        decimals: Some(9),
-        print_supply: None,
     };
 
-    let create_ix = CreateV1 {
-        metadata: ctx.accounts.metadata.key(),
-        master_edition: None,
-        mint:(ctx.accounts.mint.key(), true),
-        authority: ctx.accounts.token_data.key(),
-        payer: ctx.accounts.payer.key(),
-        update_authority: (ctx.accounts.token_data.key(), true),
-        system_program: ctx.accounts.system_program.key(),
-        sysvar_instructions: ctx.accounts.rent.key(),
-        spl_token_program: anchor_spl::token::ID,
+    let cpi_accounts = CreateMetadataAccountV3 {
+         metadata: ctx.accounts.metadata.key(),
+            mint: ctx.accounts.mint.key(),
+            mint_authority: ctx.accounts.token_data.key(),
+            payer: ctx.accounts.payer.key(),
+            update_authority: (ctx.accounts.token_data.key(), true),
+            system_program: ctx.accounts.system_program.key(),
+            rent:None,
+          
     };
 
-    let create_instruction = create_ix.instruction(create_args);
+    // Use the instruction builder
+     let args = CreateMetadataAccountV3InstructionArgs {
+            data: data_v2,
+            is_mutable: true,
+            collection_details: None,
+        };
 
-    anchor_lang::solana_program::program::invoke_signed(
-        &create_instruction,
-        &[
-            ctx.accounts.metadata.to_account_info(),
-            ctx.accounts.mint.to_account_info(),
-            ctx.accounts.token_data.to_account_info(),
-            ctx.accounts.payer.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-            ctx.accounts.rent.to_account_info(),
-            ctx.accounts.token_metadata_program.to_account_info(),
-        ],
-        signer_seeds,
-    )?;
+        let ix = cpi_accounts.instruction(args);
+
+        anchor_lang::solana_program::program::invoke_signed(
+            &ix,
+            &[
+                ctx.accounts.metadata.to_account_info(),
+                ctx.accounts.mint.to_account_info(),
+                ctx.accounts.token_data.to_account_info(),
+                ctx.accounts.payer.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+                ctx.accounts.token_metadata_program.to_account_info(),
+            ],
+            signer_seeds,
+        )?;
 
     msg!("✅ Metadata created successfully!");
     Ok(())
 }
+    
+    
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         let token_data = &mut ctx.accounts.token_data;
         token_data.authority = ctx.accounts.authority.key();
@@ -167,22 +167,18 @@ pub fn create_metadata(
 
         let initial_supply: u64 = 500_000_000_000_000_000;
         let bump = ctx.accounts.token_data.bump;
-           let seeds = &[
-            b"token_data".as_ref(),
-            &[bump],
-        ];
+        let seeds = &[b"token_data".as_ref(), &[bump]];
         let signer = &[&seeds[..]];
-        
 
         // Mint tokens to authority's token account
         let cpi_accounts = MintTo {
             mint: ctx.accounts.mint.to_account_info(),
             to: ctx.accounts.authority_token_account.to_account_info(),
-            authority:  ctx.accounts.token_data.to_account_info(),
+            authority: ctx.accounts.token_data.to_account_info(),
         };
 
         let cpi_program = ctx.accounts.token_program.to_account_info();
-        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts,signer);
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer);
 
         token::mint_to(cpi_ctx, initial_supply)?;
 
@@ -365,12 +361,13 @@ pub struct CreateMetadata<'info> {
     pub payer: Signer<'info>,
 
     pub system_program: Program<'info, System>,
-    pub rent: Sysvar<'info, Rent>,
 
     /// CHECK: Metaplex Token Metadata Program
     #[account(address = mpl_token_metadata::ID)]
     pub token_metadata_program: UncheckedAccount<'info>,
 }
+
+
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(
