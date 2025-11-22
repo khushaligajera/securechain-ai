@@ -1,11 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token::{self, Mint, MintTo, Token, TokenAccount, Transfer, Approve, Burn};
+use anchor_spl::token::{self, Approve, Burn, Mint, MintTo, Token, TokenAccount, Transfer};
 use mpl_token_metadata::{
-    instructions::{
-        CreateMetadataAccountV3,
-        CreateMetadataAccountV3InstructionArgs,
-    },
+    instructions::{CreateMetadataAccountV3, CreateMetadataAccountV3InstructionArgs},
     types::DataV2,
 };
 
@@ -15,105 +12,41 @@ declare_id!("2kEoDg33aergmyXTevEUjwXUi9WZx1Fm62feMEjKoaLA");
 pub mod securechain_ai {
     use super::*;
 
-    /// Create Metaplex metadata for the token
-    // pub fn create_metadata(
-    //     ctx: Context<CreateMetadata>,
-    //     name: String,
-    //     symbol: String,
-    //     uri: String,
-    // ) -> Result<()> {
-    //     let bump = ctx.accounts.token_data.bump;
-    //     let seeds = &[b"token_data".as_ref(), &[bump]];
-    //     let signer_seeds = &[&seeds[..]];
-
-    //     msg!("Creating metadata...");
-    //     msg!("Name: {}", name);
-    //     msg!("Symbol: {}", symbol);
-    //     msg!("URI: {}", uri);
-
-    //     // Create metadata using v3 API (compatible with mpl-token-metadata 4.1.2)
-    //     let accounts = CreateMetadataAccountV3 {
-    //         metadata: ctx.accounts.metadata.key(),
-    //         mint: ctx.accounts.mint.key(),
-    //         mint_authority: ctx.accounts.token_data.key(), // PDA as mint authority
-    //         payer: ctx.accounts.payer.key(),
-    //         update_authority: (ctx.accounts.payer.key(), true),
-    //         system_program: ctx.accounts.system_program.key(),
-    //         rent: Some(ctx.accounts.rent.key()),
-    //     };
-
-    //     let data = DataV2 {
-    //         name,
-    //         symbol,
-    //         uri,
-    //         seller_fee_basis_points: 0,
-    //         creators: None,
-    //         collection: None,
-    //         uses: None,
-    //     };
-
-    //     let args = CreateMetadataAccountV3InstructionArgs {
-    //         data,
-    //         is_mutable: true,
-    //         collection_details: None,
-    //     };
-
-    //     let ix = accounts.instruction(args);
-
-    //     anchor_lang::solana_program::program::invoke_signed(
-    //         &ix,
-    //         &[
-    //             ctx.accounts.metadata.to_account_info(),
-    //             ctx.accounts.mint.to_account_info(),
-    //             ctx.accounts.token_data.to_account_info(),
-    //             ctx.accounts.payer.to_account_info(),
-    //             ctx.accounts.system_program.to_account_info(),
-    //             ctx.accounts.rent.to_account_info(),
-    //             ctx.accounts.token_metadata_program.to_account_info(),
-    //         ],
-    //         signer_seeds,
-    //     )?;
-
-    //     msg!("✅ Metadata created successfully!");
-    //     Ok(())
-    // }
-
-//     /// Create Metaplex metadata for the token
+    // Create Metaplex metadata for the token
     pub fn create_metadata(
-    ctx: Context<CreateMetadata>,
-    name: String,
-    symbol: String,
-    uri: String,
-) -> Result<()> {
-    let bump = ctx.accounts.token_data.bump;
-    let seeds = &[b"token_data".as_ref(), &[bump]];
-    let signer_seeds = &[&seeds[..]];
+        ctx: Context<CreateMetadata>,
+        name: String,
+        symbol: String,
+        uri: String,
+    ) -> Result<()> {
+        let bump = ctx.accounts.token_data.bump;
+        let seeds = &[b"token_data".as_ref(), &[bump]];
+        let signer_seeds = &[&seeds[..]];
 
-    msg!("Creating metadata...");
+        msg!("Creating metadata...");
 
-    let data_v2 = DataV2 {
-        name,
-        symbol,
-        uri,
-        seller_fee_basis_points: 0,
-        creators: None,
-        collection: None,
-        uses: None,
-    };
+        let data_v2 = DataV2 {
+            name,
+            symbol,
+            uri,
+            seller_fee_basis_points: 0,
+            creators: None,
+            collection: None,
+            uses: None,
+        };
 
-    let cpi_accounts = CreateMetadataAccountV3 {
-         metadata: ctx.accounts.metadata.key(),
+        let cpi_accounts = CreateMetadataAccountV3 {
+            metadata: ctx.accounts.metadata.key(),
             mint: ctx.accounts.mint.key(),
             mint_authority: ctx.accounts.token_data.key(),
             payer: ctx.accounts.payer.key(),
             update_authority: (ctx.accounts.token_data.key(), true),
             system_program: ctx.accounts.system_program.key(),
-            rent:None,
-          
-    };
+            rent: None,
+        };
 
-    // Use the instruction builder
-     let args = CreateMetadataAccountV3InstructionArgs {
+        
+        let args = CreateMetadataAccountV3InstructionArgs {
             data: data_v2,
             is_mutable: true,
             collection_details: None,
@@ -134,11 +67,10 @@ pub mod securechain_ai {
             signer_seeds,
         )?;
 
-    msg!("✅ Metadata created successfully!");
-    Ok(())
-}
-    
-    
+        msg!("✅ Metadata created successfully!");
+        Ok(())
+    }
+
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         let token_data = &mut ctx.accounts.token_data;
         token_data.authority = ctx.accounts.authority.key();
@@ -195,7 +127,6 @@ pub mod securechain_ai {
     }
 
     /// Transfer tokens from sender to recipient
-    /// Equivalent to ERC20 transfer()
     pub fn transfer(ctx: Context<TransferTokens>, amount: u64) -> Result<()> {
         require!(amount > 0, ErrorCode::InvalidAmount);
 
@@ -222,7 +153,6 @@ pub mod securechain_ai {
     }
 
     /// Approve a delegate to spend tokens on behalf of the owner
-    /// Equivalent to ERC20 approve()
     pub fn approve(ctx: Context<ApproveDelegate>, amount: u64) -> Result<()> {
         let cpi_accounts = Approve {
             to: ctx.accounts.token_account.to_account_info(),
@@ -245,7 +175,6 @@ pub mod securechain_ai {
     }
 
     /// Transfer tokens using a delegated allowance
-    /// Equivalent to ERC20 transferFrom()
     pub fn transfer_from(ctx: Context<TransferFrom>, amount: u64) -> Result<()> {
         require!(amount > 0, ErrorCode::InvalidAmount);
 
@@ -281,7 +210,6 @@ pub mod securechain_ai {
     }
 
     /// Burn tokens and reduce total supply
-    /// Equivalent to ERC20 burn()
     pub fn burn(ctx: Context<BurnTokens>, amount: u64) -> Result<()> {
         require!(amount > 0, ErrorCode::InvalidAmount);
 
@@ -366,7 +294,6 @@ pub struct CreateMetadata<'info> {
     #[account(address = mpl_token_metadata::ID)]
     pub token_metadata_program: UncheckedAccount<'info>,
 }
-
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -508,15 +435,15 @@ pub struct RevokeDelegate<'info> {
 #[account]
 #[derive(InitSpace)]
 pub struct TokenData {
-    pub authority: Pubkey, // 32 bytes
-    pub mint: Pubkey,      // 32 bytes
-    pub total_supply: u64, // 8 bytes
-    pub decimals: u8,      // 1 byte
+    pub authority: Pubkey, 
+    pub mint: Pubkey,      
+    pub total_supply: u64, 
+    pub decimals: u8,      
     #[max_len(50)]
-    pub name: String, // 4 + 50 bytes
+    pub name: String, 
     #[max_len(10)]
-    pub symbol: String, // 4 + 10 bytes
-    pub bump: u8,          // 1 byte
+    pub symbol: String, 
+    pub bump: u8,          
 }
 
 // ========================================
