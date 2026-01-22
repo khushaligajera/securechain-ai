@@ -44,7 +44,7 @@ console.log("PDA",tokenDataPDA);
 
     // Step 2: Check if metadata URI exists
     if (!tokenInfo.metadataUri) {
-      console.log('⚠️  WARNING: metadataUri not found in token-info.json!');
+      console.log('  WARNING: metadataUri not found in token-info.json!');
       console.log('Please add your Pinata metadata URI manually:\n');
       console.log('Example:');
       console.log('{');
@@ -73,17 +73,17 @@ console.log("PDA",tokenDataPDA);
       
       tokenInfo.metadataUri = metadataUri;
       fs.writeFileSync(tokenInfoPath, JSON.stringify(tokenInfo, null, 2));
-      console.log('✅ Metadata URI saved to token-info.json\n');
+      console.log(' Metadata URI saved to token-info.json\n');
     }
 
-    console.log(`📄 Metadata URI: ${tokenInfo.metadataUri}\n`);
+    console.log(` Metadata URI: ${tokenInfo.metadataUri}\n`);
 
     // Step 3: Initialize UMI (Metaplex SDK)
-    console.log('🔧 Initializing Metaplex UMI...');
+    console.log(' Initializing Metaplex UMI...');
     const umi = createUmi('https://api.devnet.solana.com');
 
     // Step 4: Load authority keypair
-    console.log('🔑 Loading authority keypair...');
+    console.log(' Loading authority keypair...');
     const keypairPath = path.join(os.homedir(), '.config', 'solana', 'id.json');
     const keypairData = JSON.parse(fs.readFileSync(keypairPath, 'utf-8'));
     const authorityKeypair = Keypair.fromSecretKey(new Uint8Array(keypairData));
@@ -93,18 +93,18 @@ console.log("PDA",tokenDataPDA);
     const signer = createSignerFromKeypair(umi, umiKeypair);
     umi.use(signerIdentity(signer));
 
-    console.log('✅ Authority loaded:', signer.publicKey);
+    console.log(' Authority loaded:', signer.publicKey);
     
     // Verify authority matches
     if (signer.publicKey !== tokenInfo.authority) {
-      console.log('\n⚠️  WARNING: Loaded keypair does not match token authority!');
+      console.log('\n  WARNING: Loaded keypair does not match token authority!');
       console.log(`   Expected: ${tokenInfo.authority}`);
       console.log(`   Loaded:   ${signer.publicKey}`);
       console.log('\nThis might cause the transaction to fail!\n');
     }
 
     // Step 5: Create metadata account
-    console.log('\n📝 Creating Metaplex metadata account on-chain...\n');
+    console.log('\n Creating Metaplex metadata account on-chain...\n');
     console.log('This will:');
     console.log('  1. Create a metadata account linked to your mint');
     console.log('  2. Store name, symbol, and URI on-chain');
@@ -129,21 +129,21 @@ console.log("PDA",tokenDataPDA);
       collectionDetails: null,
     }as any).sendAndConfirm(umi);
 
-    console.log('✅ Metadata account created successfully!\n');
-    console.log('📝 Transaction Signature:');
+    console.log('Metadata account created successfully!\n');
+    console.log(' Transaction Signature:');
     console.log(`   ${tx.signature}`);
     console.log(`\n🔍 View on Explorer:`);
     console.log(`   https://explorer.solana.com/tx/${tx.signature}?cluster=devnet`);
     console.log(`   https://explorer.solana.com/address/${tokenInfo.mintAddress}?cluster=devnet\n`);
 
     console.log('==========================================');
-    console.log('🎉 TOKEN METADATA CREATED ON-CHAIN!');
+    console.log(' TOKEN METADATA CREATED ON-CHAIN!');
     console.log('==========================================');
     console.log('Your token now has Metaplex metadata!');
     console.log('Wallets will now display:');
-    console.log(`  ✅ Name: ${tokenInfo.name}`);
-    console.log(`  ✅ Symbol: ${tokenInfo.symbol}`);
-    console.log(`  ✅ Logo: ${tokenInfo.logoUri || '(from metadata.json)'}`);
+    console.log(`   Name: ${tokenInfo.name}`);
+    console.log(`   Symbol: ${tokenInfo.symbol}`);
+    console.log(`   Logo: ${tokenInfo.logoUri || '(from metadata.json)'}`);
     console.log('==========================================\n');
 
     // Step 6: Update token-info.json
@@ -151,24 +151,24 @@ console.log("PDA",tokenDataPDA);
     tokenInfo.metadataSignature = tx.signature;
     tokenInfo.metadataCreatedAt = new Date().toISOString();
     fs.writeFileSync(tokenInfoPath, JSON.stringify(tokenInfo, null, 2));
-    console.log('💾 Updated token-info.json with metadata creation info\n');
+    console.log(' Updated token-info.json with metadata creation info\n');
 
-    console.log('✨ Next Steps:');
+    console.log(' Next Steps:');
     console.log('  1. Wait 1-2 minutes for blockchain confirmation');
     console.log('  2. Import token in Phantom wallet using mint address');
     console.log('  3. Your token should show with name, symbol, and logo!\n');
 
   } catch (error: any) {
-    console.error('\n❌ Error creating metadata:', error.message);
+    console.error('\n Error creating metadata:', error.message);
     
     if (error.message.includes('already exists')) {
-      console.log('\n⚠️  Metadata account already exists for this mint!');
-      console.log('Your token already has on-chain metadata. Nothing to do! ✅\n');
+      console.log('\n  Metadata account already exists for this mint!');
+      console.log('Your token already has on-chain metadata. Nothing to do! \n');
     } else if (error.message.includes('Attempt to debit')) {
-      console.log('\n⚠️  Insufficient SOL balance!');
+      console.log('\n  Insufficient SOL balance!');
       console.log('Get devnet SOL: solana airdrop 1\n');
     } else {
-      console.error('\n📋 Full error:', error);
+      console.error('\n Full error:', error);
     }
     
     process.exit(1);
@@ -177,10 +177,10 @@ console.log("PDA",tokenDataPDA);
 
 createTokenMetadata()
   .then(() => {
-    console.log('✅ Metadata creation script completed!');
+    console.log('Metadata creation script completed!');
     process.exit(0);
   })
   .catch((err) => {
-    console.error('❌ Fatal error:', err);
+    console.error(' Fatal error:', err);
     process.exit(1);
   });
