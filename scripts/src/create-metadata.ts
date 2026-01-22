@@ -15,19 +15,19 @@ import { Connection, PublicKey, Keypair } from '@solana/web3.js';
 
 async function createTokenMetadata() {
   try {
-    console.log('🚀 Starting Metaplex metadata creation...\n');
+    console.log(' Starting Metaplex metadata creation...\n');
 
     // Step 1: Read token-info.json
     const tokenInfoPath = path.join(process.cwd(), 'token-info.json');
     if (!fs.existsSync(tokenInfoPath)) {
-      throw new Error('❌ token-info.json not found! Run the initialization script first.');
+      throw new Error(' token-info.json not found! Run the initialization script first.');
     }
 
     const tokenInfo = JSON.parse(fs.readFileSync(tokenInfoPath, 'utf-8'));
     const mint = new PublicKey(tokenInfo.mintAddress);
     
     
-    console.log('📦 Token Information:');
+    console.log(' Token Information:');
     console.log(`   Name: ${tokenInfo.name}`);
     console.log(`   Symbol: ${tokenInfo.symbol}`);
     console.log(`   Mint: ${tokenInfo.mintAddress}`);
